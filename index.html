@@ -1,46 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>USDC Payment Request</title>
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-</head>
-
-<body style="font-family: Arial; text-align: center; margin-top: 50px;">
-
-<h2>USDC Payment Request (Arc)</h2>
-
-<button onclick="connectWallet()">Connect Wallet</button>
-
-<p id="wallet">Not Connected</p>
-
-<hr>
-
-<h3>Create Payment Request</h3>
-
-<input id="amount" placeholder="Enter Amount (USDC)" /><br><br>
-<input id="desc" placeholder="Description" /><br><br>
-
-<button onclick="createRequest()">Generate Request</button>
-
-<p id="result"></p>
-
-<script>
-let provider;
-let signer;
-let userAddress;
-
 async function connectWallet() {
   try {
-    if (!window.ethereum) {
-      alert("Please install MetaMask");
+    let ethereum = window.ethereum;
+
+    // check for Rabby
+    if (window.ethereum && window.ethereum.isRabby) {
+      ethereum = window.ethereum;
+    }
+
+    if (!ethereum) {
+      alert("No wallet found. Install MetaMask or Rabby.");
       return;
     }
 
-    const accounts = await window.ethereum.request({
+    const accounts = await ethereum.request({
       method: "eth_requestAccounts"
     });
 
-    provider = new ethers.providers.Web3Provider(window.ethereum);
+    provider = new ethers.providers.Web3Provider(ethereum);
     signer = provider.getSigner();
     userAddress = accounts[0];
 
@@ -49,32 +25,11 @@ async function connectWallet() {
 
   } catch (err) {
     console.log(err);
-    alert("Connection rejected or failed");
+
+    if (err.code === 4001) {
+      alert("You rejected the connection");
+    } else {
+      alert("Wallet connection failed");
+    }
   }
 }
-
-function createRequest() {
-  let amount = document.getElementById("amount").value;
-  let desc = document.getElementById("desc").value;
-
-  if (!amount || !desc) {
-    alert("Fill all fields");
-    return;
-  }
-
-  let request = {
-    amount: amount,
-    description: desc,
-    address: userAddress
-  };
-
-  let encoded = btoa(JSON.stringify(request));
-  let link = window.location.origin + "?data=" + encoded;
-
-  document.getElementById("result").innerHTML =
-    "Share this link:<br><a href='" + link + "'>" + link + "</a>";
-}
-</script>
-
-</body>
-</html>
