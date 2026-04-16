@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>USDC App</title>
+  <title>USDC Payment App</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
 </head>
 
-<body style="text-align:center; margin-top:50px; font-family:sans-serif;">
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
 
-<h2>Wallet Test</h2>
+<h2>USDC Payment Request (Arc)</h2>
 
 <button onclick="connectWallet()">Connect Wallet</button>
 
 <p id="wallet">Not Connected</p>
 
+<hr>
+
+<h3>Create Payment Request</h3>
+
+<input id="amount" placeholder="Enter Amount (USDC)" /><br><br>
+<input id="desc" placeholder="Description" /><br><br>
+
+<button onclick="createRequest()">Generate Request</button>
+
+<p id="result"></p>
+
 <script>
+let provider;
+let signer;
+let userAddress;
+
+// CONNECT WALLET
 async function connectWallet() {
   if (!window.ethereum) {
     alert("Install MetaMask");
@@ -25,18 +41,42 @@ async function connectWallet() {
       method: "eth_requestAccounts"
     });
 
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    userAddress = accounts[0];
+
     document.getElementById("wallet").innerText =
-      "Connected: " + accounts[0];
+      "Connected: " + userAddress;
 
   } catch (err) {
     alert("Connection failed or rejected");
   }
 }
-</script>
 
-</body>
-</html>
+// CREATE REQUEST LINK
+function createRequest() {
+  let amount = document.getElementById("amount").value;
+  let desc = document.getElementById("desc").value;
 
+  if (!amount || !desc) {
+    alert("Fill all fields");
+    return;
+  }
+
+  let request = {
+    amount: amount,
+    description: desc,
+    address: userAddress
+  };
+
+  let encoded = btoa(JSON.stringify(request));
+  let link = window.location.origin + "?data=" + encoded;
+
+  document.getElementById("result").innerHTML =
+    "Share this link:<br><a href='" + link + "' target='_blank'>" + link + "</a>";
+}
+
+// SHOW DATA WHEN LINK OPENED
 window.onload = function () {
   const params = new URLSearchParams(window.location.search);
   const data = params.get("data");
@@ -52,3 +92,7 @@ window.onload = function () {
     `;
   }
 };
+</script>
+
+</body>
+</html>
