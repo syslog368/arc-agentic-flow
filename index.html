@@ -36,3 +36,19 @@ async function connectWallet() {
 
 </body>
 </html>
+
+window.onload = function () {
+  const params = new URLSearchParams(window.location.search);
+  const data = params.get("data");
+
+  if (data) {
+    const decoded = JSON.parse(atob(data));
+
+    document.body.innerHTML = `
+      <h2>Payment Request</h2>
+      <p><b>Amount:</b> ${decoded.amount} USDC</p>
+      <p><b>Description:</b> ${decoded.description}</p>
+      <p><b>To:</b> ${decoded.address}</p>
+    `;
+  }
+};
