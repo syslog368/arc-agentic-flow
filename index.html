@@ -1,3 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>USDC Payment Request</title>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
+</head>
+
+<body style="font-family: Arial; text-align: center; margin-top: 50px;">
+
+<h2>USDC Payment Request (Arc)</h2>
+
+<button onclick="connectWallet()">Connect Wallet</button>
+
+<p id="wallet">Not Connected</p>
+
+<hr>
+
+<h3>Create Payment Request</h3>
+
+<input id="amount" placeholder="Enter Amount (USDC)" /><br><br>
+<input id="desc" placeholder="Description" /><br><br>
+
+<button onclick="createRequest()">Generate Request</button>
+
+<p id="result"></p>
+
 <script>
 let provider;
 let signer;
@@ -6,24 +32,15 @@ let userAddress;
 async function connectWallet() {
   try {
     if (!window.ethereum) {
-      alert("Wallet not found. Install MetaMask.");
+      alert("Please install MetaMask");
       return;
     }
 
-    // get provider safely
-    const eth = window.ethereum;
-
-    // request account
-    const accounts = await eth.request({
-      method: "eth_requestAccounts",
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
     });
 
-    if (!accounts || accounts.length === 0) {
-      alert("No account found");
-      return;
-    }
-
-    provider = new ethers.providers.Web3Provider(eth, "any");
+    provider = new ethers.providers.Web3Provider(window.ethereum);
     signer = provider.getSigner();
     userAddress = accounts[0];
 
@@ -31,9 +48,8 @@ async function connectWallet() {
       "Connected: " + userAddress;
 
   } catch (err) {
-    console.log("ERROR:", err);
-
-    alert("Wallet connect failed. Check MetaMask popup.");
+    console.log(err);
+    alert("Connection rejected or failed");
   }
 }
 
@@ -59,3 +75,6 @@ function createRequest() {
     "Share this link:<br><a href='" + link + "'>" + link + "</a>";
 }
 </script>
+
+</body>
+</html>
