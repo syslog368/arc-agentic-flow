@@ -30,22 +30,32 @@ let signer;
 let userAddress;
 
 async function connectWallet() {
-  if (typeof window.ethereum !== "undefined") {
-    try {
-      await window.ethereum.request({ method: "eth_requestAccounts" });
+  if (!window.ethereum) {
+    alert("No wallet found. Install MetaMask or Rabby.");
+    return;
+  }
 
-      provider = new ethers.providers.Web3Provider(window.ethereum);
-      signer = provider.getSigner();
-      userAddress = await signer.getAddress();
+  try {
+    // force open popup
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
 
-      document.getElementById("wallet").innerText =
-        "Connected: " + userAddress;
-    } catch (err) {
-      console.log(err);
-      alert("User rejected connection");
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    userAddress = accounts[0];
+
+    document.getElementById("wallet").innerText =
+      "Connected: " + userAddress;
+
+  } catch (error) {
+    console.log(error);
+
+    if (error.code === 4001) {
+      alert("You rejected the connection. Please approve it in wallet.");
+    } else {
+      alert("Connection failed. Try again.");
     }
-  } else {
-    alert("MetaMask not detected");
   }
 }
 
