@@ -1,14 +1,14 @@
+<script>
+let provider;
+let signer;
+let userAddress;
+
 async function connectWallet() {
   try {
     let ethereum = window.ethereum;
 
-    // check for Rabby
-    if (window.ethereum && window.ethereum.isRabby) {
-      ethereum = window.ethereum;
-    }
-
     if (!ethereum) {
-      alert("No wallet found. Install MetaMask or Rabby.");
+      alert("No wallet found. Install MetaMask.");
       return;
     }
 
@@ -33,3 +33,26 @@ async function connectWallet() {
     }
   }
 }
+
+function createRequest() {
+  let amount = document.getElementById("amount").value;
+  let desc = document.getElementById("desc").value;
+
+  if (!amount || !desc) {
+    alert("Fill all fields");
+    return;
+  }
+
+  let request = {
+    amount: amount,
+    description: desc,
+    address: userAddress
+  };
+
+  let encoded = btoa(JSON.stringify(request));
+  let link = window.location.origin + "?data=" + encoded;
+
+  document.getElementById("result").innerHTML =
+    "Share this link:<br><a href='" + link + "'>" + link + "</a>";
+}
+</script>
